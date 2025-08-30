@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::{post, get, web, App, HttpResponse, HttpServer, Responder, middleware::Logger};
 use serde::Deserialize;
@@ -42,8 +43,15 @@ async fn main() -> std::io::Result<()> {
     log::info!("🚀 Starting Markdown → HTML API server on http://127.0.0.1:8080");
 
     HttpServer::new(|| {
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allow_any_method()
+            .allow_any_header()
+            .max_age(3600);
+
         App::new()
             .wrap(Logger::default())
+            .wrap(cors)
             .service(render)
             .service(health)
             .service(Files::new("/", "./frontend").index_file("index.html"))
